@@ -23,9 +23,21 @@ var playerTwoName = '';
 var playerOneGuess;
 var playerTwoGuess;
 var turn = 1;
+var numOnline = 1;
 var ties;
 var wins;
 var losses;
+
+var rps = {
+  playerOne:{
+    num: 1
+    
+  },
+  playerTwo:{
+    num:2
+  
+  }
+}
 
 // --------------------------------------------------------------
 
@@ -35,7 +47,7 @@ $('#playerTwoOptions').hide();
 
 // connectionsRef references a specific location in our database.
 // All of our connections will be stored in this directory.
-var connectionsRef = database.ref("/connections");
+var connectionsRef = database.ref("players/"+numOnline+"/connections");
 
 // '.info/connected' is a special location provided by Firebase that is updated every time
 // the client's connection state changes.
@@ -53,6 +65,7 @@ connectedRef.on("value", function(snap) {
 
     // Remove user from the connection list when they disconnect.
     con.onDisconnect().remove();
+    
   }
 });
 
@@ -77,7 +90,15 @@ connectionsRef.on("value", function(snap) {
 
 $('.options').on('click', function(){
   $(this).addClass('btn-danger').removeClass('btn-primary');
+  if(turn === 1){
+    playerOneGuess = $(this).val();
+    console.log(playerOneGuess);
+  }
   turn++;
+  
+  database.ref().update({
+    turns: turn
+  })
 })
 
 $('#add-player').on('click', function(event){
@@ -103,9 +124,6 @@ $('#add-player').on('click', function(event){
 database.ref().on("value", function(snapshot) {
   console.log(snapshot.val());
   
-  database.ref().update({
-    turns: turn
-  })
 
 }, function(errorObject) {
   console.log("The read failed: " + errorObject.code);
